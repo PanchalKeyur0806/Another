@@ -1,5 +1,5 @@
 // GET TOUR MODAL
-const Tour = require("../modals/tourModel");
+const Tour = require("../models/tourModel");
 // IMAGES_UPLOAD
 const upload = require("../utils/uploadImages");
 // ERROR HADNLING
@@ -20,7 +20,9 @@ exports.getTours = catchAsync(async (req, res, next) => {
 
 // GET TOUR
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate(
+    "review hotel guides"
+  );
 
   if (!tour) return next(new AppError("Tour not found", 404));
 
@@ -40,26 +42,31 @@ exports.createTour = catchAsync(async (req, res, next) => {
     name,
     duration,
     maxGroupSize,
+    location,
     price,
     priceDiscount,
     description,
     startDate,
     endDate,
+    guides,
   } = req.body;
 
   // handle image
   const imageCover = req.file ? req.file.path : null;
+  const guideIds = guides ? guides.split(",") : [];
 
   const newTour = await Tour.create({
     name,
     duration: Number(duration),
     maxGroupSize: Number(maxGroupSize),
+    location: JSON.parse(location),
     price: Number(price),
     priceDiscount: Number(priceDiscount),
     description,
     startDate: new Date(startDate),
     endDate: new Date(endDate),
     imageCover,
+    guides: guideIds,
   });
 
   if (!newTour) return next(new AppError("Tour is not created", 404));
@@ -74,11 +81,13 @@ exports.createTour = catchAsync(async (req, res, next) => {
 // UPDATE TOUR
 exports.updateTour = catchAsync(async (req, res, next) => {
   const imageCover = req.file ? req.file.path : undefined;
+  const guideIds = req.body.guides ? req.body.guides.split(",") : undefined;
 
   const updatedTour = await Tour.findByIdAndUpdate(
     req.params.id,
     {
       ...req.body,
+      guides: guideIds,
       imageCover: imageCover || req.body.imageCover,
     },
     { new: true }

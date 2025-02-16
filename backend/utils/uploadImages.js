@@ -1,5 +1,6 @@
 const multer = require("multer");
 
+// create folder for uploading images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./uploads/");

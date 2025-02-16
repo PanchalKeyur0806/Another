@@ -1,7 +1,7 @@
 import axios from "axios";
-import './Api.css';
+import "./Api.css";
 
-const API_URL = "http://localhost:8000/api/v1/tours";
+const API_URL = "http://localhost:8000/api/tours";
 
 // GET all tours
 export const getTours = async () => {
@@ -15,10 +15,11 @@ export const getTours = async () => {
 };
 
 // GET single tour by ID
-export const getTour = async (id) => {
+export const getTourById = async (id) => {
   try {
-    const response = await axios.get(`${API_URL}/${id}`);
-    return response.data.data.tour;
+    const res = await fetch(`http://localhost:8000/api/tours/${id}`); // Fetch single tour
+    const data = await res.json();
+    return data.data.tour;
   } catch (error) {
     console.error("Error fetching tour:", error);
     return null;
